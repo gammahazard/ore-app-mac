@@ -1,0 +1,46 @@
+2024-08-11T01:10:48.160Z thread 'main' panicked at /Users/navraj/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ore-cli-2.2.1/src/main.rs:242:18:
+No keypair found at ./id.json: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+2024-08-11T01:10:48.162Z Miner process exited with code 101
+2024-08-11T01:10:49.268Z Miner process exited with code 101
+2024-08-11T01:10:50.371Z Miner process exited with code 101
+2024-08-11T01:10:51.486Z Miner process exited with code 101
+2024-08-11T01:10:52.589Z Miner process exited with code 101
+2024-08-11T01:10:53.691Z Miner process exited with code 101
+2024-08-11T01:10:54.807Z Miner process exited with code 101
+2024-08-11T01:13:06.989Z Stake: 0.23968281011 ORE
+  Multiplier: 1.0005034937567683x
+2024-08-11T01:13:07.053Z Mining...                                                                                                                                                                                                                                                                                                                          Mining...
+2024-08-11T01:13:07.073Z Mining... (difficulty 4)
+2024-08-11T01:13:07.851Z Mining... (difficulty 11)
+2024-08-11T01:13:07.852Z Best hash: 1J83YKokNwFoeJbSoXD4mguQtZTb5VRhWfk2cwF9ycq (difficulty 11)
+2024-08-11T01:13:08.038Z Submitting transaction... (attempt 0)                                                                                                                                                                                                                                                                                              Submitting transaction... (attempt 0)
+2024-08-11T01:13:08.139Z Submitting transaction... (attempt 0)
+2024-08-11T01:13:12.693Z Submitting transaction... (attempt 1)
+2024-08-11T01:13:17.312Z Submitting transaction... (attempt 2)
+2024-08-11T01:13:20.258Z estamp: 2024-08-10 21:13:20
+ Submitting transaction... (attempt 2)                                                                                                                                                                                                                                                                                               OK 3ueK5kZZDFB5ryzMeWL5r89euigRcZKmmKD6ahvSaYcmPyPjTnA6eiaEa2QsemT7jxf1FT6aJMJf2q4KRywb9NNo
+2024-08-11T01:13:21.436Z Error processing log: ENOENT: no such file or directory, open '/Users/navraj/Desktop/ore-miner-mac/submitted-hashes.log'
+2024-08-11T01:13:21.766Z Mining...                                                                                                                                                                                                                                                                                                                          Mining...
+2024-08-11T01:13:21.798Z Mining... (difficulty 4, time 00:54)
+2024-08-11T01:13:22.670Z Mining... (difficulty 12, time 00:54)
+2024-08-11T01:13:23.482Z Mining... (difficulty 12, time 00:53)
+2024-08-11T01:13:24.308Z Mining... (difficulty 12, time 00:52)
+2024-08-11T01:13:25.141Z Mining... (difficulty 12, time 00:51)
+2024-08-11T01:13:25.985Z Mining... (difficulty 12, time 00:50)
+2024-08-11T01:13:26.857Z Mining... (difficulty 12, time 00:49)
+2024-08-11T01:13:28.549Z Mining... (difficulty 12, time 00:48)
+2024-08-11T01:13:29.436Z Mining... (difficulty 12, time 00:47)
+2024-08-11T01:13:30.316Z Mining... (difficulty 12, time 00:46)
+2024-08-11T01:13:31.201Z Mining... (difficulty 12, time 00:45)
+2024-08-11T01:13:32.146Z Mining... (difficulty 12, time 00:44)
+2024-08-11T01:13:33.012Z Mining... (difficulty 12, time 00:43)
+2024-08-11T01:13:33.994Z Mining... (difficulty 12, time 00:42)
+2024-08-11T01:13:34.899Z Mining... (difficulty 12, time 00:41)
+2024-08-11T01:13:35.773Z Mining... (difficulty 12, time 00:40)
+2024-08-11T01:13:37.446Z Mining... (difficulty 12, time 00:39)
+2024-08-11T01:13:38.396Z Mining... (difficulty 12, time 00:38)
+2024-08-11T01:13:39.269Z Mining... (difficulty 12, time 00:37)
+2024-08-11T01:13:40.105Z Mining... (difficulty 13, time 00:36)
+2024-08-11T01:13:40.967Z Mining... (difficulty 13, time 00:35)
+2024-08-11T01:13:41.826Z Mining... (difficulty 13, time 00:34)

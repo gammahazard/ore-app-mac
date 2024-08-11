@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ore Miner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #1e1e1e;
+            color: #c7c7c7;
+        }
+        #app {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #2e2e2e;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-radius: 10px 10px 0 0;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-item {
+            margin-right: 1rem;
+        }
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        label {
+            flex: 0 0 160px;
+            margin-right: 10px;
+            font-weight: bold;
+            color: #c7c7c7;
+        }
+        input[type="text"], input[type="number"], select {
+            flex: 1;
+            padding: 0.3rem;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background-color: #3e3e3e;
+            color: #c7c7c7;
+            transition: border-color 0.3s ease;
+        }
+        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+            border-color: #555;
+            outline: none;
+        }
+        .explanation {
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-left: 10px;
+        }
+        #start-miner, #stop-miner {
+            background-color: #444;
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            position: fixed;
+            bottom: 20px;
+        }
+        #start-miner {
+            right: 120px;
+        }
+        #stop-miner {
+            right: 20px;
+        }
+        button:hover {
+            background-color: #555;
+        }
+        button:disabled {
+            background-color: #666 !important;
+            cursor: not-allowed !important;
+        }
+        #profile-list {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+        .profile-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .profile-button:hover {
+            background-color: #45a049;
+        }
+        #ore-cli-status {
+            transition: opacity 0.5s ease-out;
+        }
+        section {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background-color: #2e2e2e;
+            border: 1px solid #444;
+            border-radius: 5px;
+        }
+        #log-content {
+            height: 200px;
+            overflow-y: auto;
+            background-color: #1e1e1e;
+            padding: 0.5rem;
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 0.8rem;
+            color: #00ff00;
+            border: 1px solid #444;
+            border-radius: 4px;
+        }
+        #difficulty-modal .modal-content {
+            width: 50%;
+            max-width: 50%;
+            background-color: #000000;
+            color: orange;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: #2e2e2e;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: fadeIn 0.3s;
+        }
+        @keyframes fadeIn {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: #fff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <header>
+            <div class="navbar">
+                <h1>Ore Miner</h1>
+                <div id="ore-balance" class="navbar-item"></div>
+                <div id="avg-difficulty" class="navbar-item">Average Difficulty: Select a profile</div>
+                <div id="best-hash" class="navbar-item">Best Hash: Select a profile</div>
+            </div>
+            <div class="action-buttons">
+                <button id="transfer-button">Transfer</button>
+                <button id="stake-button">Stake</button>
+                <button id="claim-button">Claim</button>
+            </div>
+        </header>
+
+        <main>
+            <p id="ore-cli-status">Checking ore-cli installation...</p>
+
+            <section id="profiles">
+                <h2>Profiles</h2>
+                <div id="profile-list"></div>
+                <div class="navbar-item">
+                    <input type="text" id="profile-name" placeholder="Profile Name" style="width: 120px;">
+                    <button id="save-profile">Save Profile</button>
+                </div>
+            </section>
+
+            <section id="miner-options">
+                <h2>Miner Options</h2>
+                <form id="miner-form">
+                    <div class="form-group">
+                        <label for="rpc-url">RPC URL:</label>
+                        <input type="text" id="rpc-url" name="rpcUrl">
+                        <p class="explanation">Custom RPC URL for more transactions.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="keypair-path">Custom Keypair Path:</label>
+                        <input type="text" id="keypair-path" name="keypairPath">
+                        <p class="explanation">Custom path to id.json file.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fee-payer-path">Fee Payer Path:</label>
+                        <input type="text" id="fee-payer-path" name="feePayerPath">
+                        <p class="explanation">Path to fee payer wallet id.json.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fee-type">Fee Type:</label>
+                        <select id="fee-type" name="feeType">
+                            <option value="static">Static</option>
+                            <option value="dynamic">Dynamic</option>
+                            <option value="dynamic-custom">Dynamic (Custom RPC)</option>
+                        </select>
+                    </div>
+
+                    <div id="static-fee-group" class="form-group">
+                        <label for="static-fee">Priority Fee (microlamports):</label>
+                        <input type="number" id="static-fee" name="priorityFee">
+                    </div>
+
+                    <div id="dynamic-fee-group" class="form-group" style="display: none;">
+                        <label for="dynamic-fee-url">Dynamic Fee RPC URL:</label>
+                        <input type="text" id="dynamic-fee-url" name="dynamicFeeUrl">
+                    </div>
+
+                    <div id="max-fee-cap-group" class="form-group" style="display: none;">
+                        <label for="max-fee-cap">Max Fee Cap (microlamports):</label>
+                        <input type="number" id="max-fee-cap" name="maxFeeCap">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cores">Number of Cores:</label>
+                        <input type="number" id="cores" name="cores" min="1">
+                        <p class="explanation">Cores to utilize for mining ORE.</p>
+                    </div>
+                </form>
+            </section>
+
+            <section id="miner-log">
+                <h2>Miner Log</h2>
+                <div id="log-content"></div>
+            </section>
+
+            <section id="difficulty">
+                <button id="show-difficulty-details">Difficulty Details</button>
+            </section>
+
+        
+        </main>
+
+        <!-- Modals -->
+        <div id="difficulty-modal" class="modal"  style="display:none!important">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <pre id="modal-content"></pre>
+            </div>
+        </div>
+
+        <div id="transfer-modal" class="modal"  style="display:none!important">
+            <div class="modal-content">
+                <span class="close" id="transfer-close">&times;</span>
+                <h2>Transfer ORE</h2>
+                <div class="form-group">
+                    <label for="transfer-amount">Amount:</label>
+                    <input type="number" id="transfer-amount" name="transfer-amount">
+                </div>
+                <div class="form-group">
+                    <label for="transfer-address">Recipient Address:</label>
+                    <input type="text" id="transfer-address" name="transfer-address">
+                </div>
+                <div class="form-group">
+                    <label for="transfer-rpc-url">RPC URL (optional):</label>
+                    <input type="text" id="transfer-rpc-url">
+                </div>
+                <div class="form-group">
+                    <label for="transfer-keypair-path">Keypair Path (optional):</label>
+                    <input type="text" id="transfer-keypair-path">
+                </div>
+                <div class="form-group">
+                    <label for="transfer-priority-fee">Priority Fee (optional):</label>
+                    <input type="number" id="transfer-priority-fee">
+                </div>
+                <button id="transfer-confirm-button">Transfer</button>
+            </div>
+        </div>
+
+        <div id="stake-modal" class="modal" style="display:none!important">
+            <div class="modal-content">
+                <span class="close" id="stake-close">&times;</span>
+                <h2>Stake ORE</h2>
+                <div class="form-group">
+                    <label for="stake-amount">Amount (leave empty for max):</label>
+                    <input type="number" id="stake-amount" name="stake-amount">
+                </div>
+                <div class="form-group">
+                    <label for="stake-rpc-url">RPC URL (optional):</label>
+                    <input type="text" id="stake-rpc-url">
+                </div>
+                <div class="form-group">
+                    <label for="stake-keypair-path">Keypair Path (optional):</label>
+                    <input type="text" id="stake-keypair-path">
+                </div>
+                <div class="form-group">
+                    <label for="stake-priority-fee">Priority Fee (optional):</label>
+                    <input type="number" id="stake-priority-fee">
+                </div>
+                <button id="stake-confirm-button">Stake</button>
+            </div>
+        </div>
+
+        <div id="claim-modal" class="modal"  style="display:none!important">
+            <div class="modal-content">
+                <span class="close" id="claim-close">&times;</span>
+                <h2>Claim ORE</h2>
+                <div class="form-group">
+                    <label for="claim-amount">Amount (leave empty for max):</label>
+                    <input type="number" id="claim-amount" name="claim-amount">
+                </div>
+                <div class="form-group">
+                    <label for="claim-rpc-url">RPC URL (optional):</label>
+                    <input type="text" id="claim-rpc-url">
+                </div>
+                <div class="form-group">
+                    <label for="claim-keypair-path">Keypair Path (optional):</label>
+                    <input type="text" id="claim-keypair-path">
+                </div>
+                <div class="form-group">
+                    <label for="claim-priority-fee">Priority Fee (optional):</label>
+                    <input type="number" id="claim-priority-fee">
+                </div>
+                <button id="claim-confirm-button">Claim</button>
+            </div>
+        </div>
+
+        <!-- Control Buttons -->
+        <button id="start-miner" disabled>Start Miner</button>
+        <button id="stop-miner" disabled>Stop Miner</button>
+    </div>
+    <script>
+        // Hide ore-cli status after 2 seconds
+        setTimeout(() => {
+            const oreCliStatus = document.getElementById('ore-cli-status');
+            oreCliStatus.style.opacity = '0';
+            setTimeout(() => {
+                oreCliStatus.style.display = 'none';
+            }, 500);
+        }, 2000);
+    </script>
+    <script src="renderer.js"></script>
+</body>
+</html>
+
+    
