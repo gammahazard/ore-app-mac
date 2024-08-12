@@ -3,11 +3,12 @@ const os = require('os');
 const path = require('path');
 const cleanLog = require('../cleanLog');
 const oreBalance = require('../oreBalance');
+const findUnbufferPath = require('../BufferExists'); // Import the BufferExists function
 
 function executeStakeCommand({ amount, keypairPath, priorityFee, rpcUrl }, event, mainWindow) {
     const [_, stakeAmount] = amount.split(' ');
 
-    const unbufferPath = '/usr/local/bin/unbuffer';
+    const unbufferPath = findUnbufferPath(); // Use the BufferExists function to find the unbuffer path
     const oreCliPath = path.join(os.homedir(), '.cargo', 'bin', 'ore');
 
     let command = `${oreCliPath} stake`;
@@ -45,6 +46,7 @@ function executeStakeCommand({ amount, keypairPath, priorityFee, rpcUrl }, event
             successSent = true;
             mainWindow.webContents.send('command-success', 'Success: Stake command executed successfully!');
             
+            // Update ORE balance after successful stake
             oreBalance(event, keypairPath).then(balance => {
                 mainWindow.webContents.send('ore-balance-updated', balance);
             }).catch(error => {

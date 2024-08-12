@@ -1,13 +1,14 @@
 const { spawn } = require('child_process');
 const os = require('os');
 const path = require('path');
-const cleanLog = require('../cleanLog'); // Import the cleanLog function
-const oreBalance = require('../oreBalance'); // Import the oreBalance function
+const cleanLog = require('../cleanLog'); 
+const oreBalance = require('../oreBalance');
+const findUnbufferPath = require('../BufferExists'); // Import the BufferExists function
 
 function executeTransferCommand({ amount, keypairPath, priorityFee, rpcUrl }, event, mainWindow) {
     const [_, transferAmount, recipient] = amount.split(' ');
 
-    const unbufferPath = '/usr/local/bin/unbuffer';
+    const unbufferPath = findUnbufferPath(); // Use the BufferExists function to find the unbuffer path
     const oreCliPath = path.join(os.homedir(), '.cargo', 'bin', 'ore');
 
     let command = `${oreCliPath} transfer`;
@@ -53,7 +54,7 @@ function executeTransferCommand({ amount, keypairPath, priorityFee, rpcUrl }, ev
             successSent = true;
             mainWindow.webContents.send('command-success', 'Success: Transfer command executed successfully!');
             
-      
+            // Update ORE balance after successful transfer
             oreBalance(event, keypairPath).then(balance => {
                 mainWindow.webContents.send('ore-balance-updated', balance);
             }).catch(error => {
