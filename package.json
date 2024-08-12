@@ -1,7 +1,7 @@
 {
-  "name": "ore-miner-electron",
+  "name": "ore-miner-electron-macos",
   "version": "1.0.0",
-  "description": "Electron app for Ore mining",
+  "description": "Electron app for Ore mining, mac only",
   "main": "main.js",
   "scripts": {
     "start": "electron . --enable-logging",
@@ -9,7 +9,7 @@
     "dist": "electron-builder",
     "postinstall": "electron-builder install-app-deps"
   },
-  "author": "Your Name",
+  "author": "Mongo",
   "license": "MIT",
   "devDependencies": {
     "electron": "^24.3.0",
