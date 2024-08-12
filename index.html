@@ -83,6 +83,12 @@
                         <input type="number" id="cores" name="cores" min="1">
                         <p class="explanation">Cores to utilize for mining ORE.</p>
                     </div>
+
+                    <div class="form-group">
+                        <label for="tx-submission-cap">TX Submission Cap:</label>
+                        <input type="number" id="tx-submission-cap" name="txSubmissionCap" min="1" max="150" value="150">
+                        <span class="explanation">150 is the max retries. If you would like to restart the miner after a certain number of retries, please enter it here. Leave at 150 to use the default max.</span>
+                      </div>
                 </form>
             </section>
 
