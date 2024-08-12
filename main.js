@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const createWindow = require('./utils/createWindow');
-const checkOreCli = require('./utils/checkOreCli');
+const checkOreCli = require('./utils/install-checks/checkOreCli');
 const startMining = require('./utils/startMining');
 const stopMining = require('./utils/stopMining');
 const saveProfile = require('./utils/saveProfile');
