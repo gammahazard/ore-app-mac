@@ -74,7 +74,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Acknowledgements
 
-Special thanks to the developers and community behind Homebrew, Rust, and the Ore CLI for providing the tools that make this project possible.
+Special thanks to the developers and community behind Homebrew, Rust, and the chad who created Ore CLI for providing the tools that make this project possible.
 
 ---
 
