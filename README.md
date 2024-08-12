@@ -3,7 +3,7 @@
 
 Welcome to the source code repository for the Ore CPU Miner App for macOS. This app is designed to make mining with your CPU using the Ore CLI more user-friendly.
 
-*Currently transfer is not functioning, please import your private key to a solana wallet in order to transfer or use cli commands from your terminal!*
+
 
 ## Requirements
 
