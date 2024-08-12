@@ -1,33 +1,37 @@
-const { exec } = require('child_process');
+const { spawn } = require('child_process');
+const os = require('os');
+const path = require('path');
+const cleanLog = require('./cleanLog');
 
-function oreBalance(event, keypairPath) {
-    try {
-        let command = 'ore balance';
-        if (keypairPath) {
-            command += ` --keypair ${keypairPath}`;
-        }
-
-        return new Promise((resolve, reject) => {
-            exec(command, (error, stdout, stderr) => {
-                if (error) {
-                    console.error(`Error getting ORE balance: ${error.message}`);
-                    reject(error.message);
-                    return;
-                }
-
-                if (stderr) {
-                    console.error(`stderr: ${stderr}`);
-                    reject(stderr);
-                    return;
-                }
-
-                resolve(stdout.trim());
-            });
-        });
-    } catch (error) {
-        console.error('Failed to retrieve ORE balance:', error);
-        return 'Error';
+const oreBalance = async (event, keypairPath) => {
+  return new Promise((resolve, reject) => {
+    const oreCliPath = path.join(os.homedir(), '.cargo', 'bin', 'ore');
+    const args = ['balance'];
+    if (keypairPath) {
+      args.push('--keypair', keypairPath);
     }
-}
+
+    const oreProcess = spawn(oreCliPath, args);
+
+    let output = '';
+    let errorOutput = '';
+
+    oreProcess.stdout.on('data', (data) => {
+      output += data.toString();
+    });
+
+    oreProcess.stderr.on('data', (data) => {
+      errorOutput += data.toString();
+    });
+
+    oreProcess.on('close', (code) => {
+      if (code === 0) {
+        resolve(cleanLog(output.trim()));
+      } else {
+        reject(new Error(cleanLog(errorOutput.trim())));
+      }
+    });
+  });
+};
 
 module.exports = oreBalance;

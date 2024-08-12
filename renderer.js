@@ -12,7 +12,6 @@ const { appendToLog, handleFeeTypeChange, setupLogUpdates } = require('./rendere
 const cleanLog = require('./utils/cleanLog.js');
 
 let lastLogMessage = ''; // To track the last log message to prevent duplicates
-let balanceUpdateInterval; // To store the interval ID for updating balance
 
 function initialize() {
   initializeMiningOperations();
@@ -22,7 +21,7 @@ function initialize() {
   checkOreCliInstallation();
   setupEventListeners();
   setupLogUpdates();
-  startBalanceUpdateInterval(); // Start periodic balance updates
+
 }
 
 // Event listeners
@@ -49,6 +48,15 @@ function setupEventListeners() {
   ipcRenderer.on('new-best-hash', handleNewBestHash); // Moved under event listeners
 }
 
+// Ensure proper cleanup when the window is closed
+function cleanup() {
+
+  ipcRenderer.removeAllListeners();  // Remove all IPC listeners
+}
+
+// Call cleanup function before the window is unloaded
+window.addEventListener('beforeunload', cleanup);
+
 function checkOreCliInstallation() {
   ipcRenderer.invoke('check-ore-cli').then((result) => {
     if (result.installed) {
@@ -64,23 +72,8 @@ function checkOreCliInstallation() {
   });
 }
 
-function startBalanceUpdateInterval() {
-  balanceUpdateInterval = setInterval(() => {
-    const profile = getCurrentProfile();
-    if (profile) {
-      ipcRenderer.invoke('get-ore-balance', profile.keypairPath).then((balance) => {
-        document.getElementById('ore-balance').textContent = `ORE Balance: ${balance}`;
-    
-      }).catch((error) => {
-        console.error('Failed to update ORE balance:', error);
-      });
-    }
-  }, 10000); // Update every 10 seconds
-}
 
-function stopBalanceUpdateInterval() {
-  clearInterval(balanceUpdateInterval);
-}
+
 
 function handleOutput(source, data) {
   const cleanedLog = cleanLog(data);

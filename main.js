@@ -1,7 +1,5 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
-
-// Import utility functions
 const createWindow = require('./utils/createWindow');
 const checkOreCli = require('./utils/checkOreCli');
 const startMining = require('./utils/startMining');
@@ -28,6 +26,8 @@ app.whenReady().then(() => {
     });
 });
 
+
+
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') app.quit();
 });
@@ -36,7 +36,7 @@ app.on('window-all-closed', function () {
 ipcMain.handle('check-ore-cli', checkOreCli);
 
 ipcMain.on('start-mining', (event, options) => {
-  minerProcess = startMining(event, options, mainWindow, app);
+    minerProcess = startMining(event, options, mainWindow, app);
 });
 
 ipcMain.on('stop-mining', (event) => {
@@ -50,7 +50,8 @@ ipcMain.handle('load-profiles', () => loadProfiles(app));
 
 ipcMain.on('execute-command', (event, options) => executeCommand(event, options, mainWindow));
 
-ipcMain.handle('get-ore-balance', oreBalance);
+ipcMain.handle('get-ore-balance', (event, keypairPath) => oreBalance(event, keypairPath, app.isPackaged));
+
 
 ipcMain.handle('read-miner-log', () => minerLog(app));
 
@@ -61,7 +62,5 @@ ipcMain.handle('get-difficulty-details', (event, profileName) => getDifficultyDe
 ipcMain.handle('get-best-hash', (event, profileName) => getBestHash(app, event, profileName));
 
 ipcMain.handle('get-full-difficulty-log', (event, profileName) => getFullDifficultyLog(app, event, profileName));
-
-
 
 ipcMain.on('delete-profile', (event, profileName) => deleteProfile(app, event, profileName));
