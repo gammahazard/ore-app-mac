@@ -9,6 +9,7 @@ let lastLogTimestamp = 0;
 
 function startMining(event, options, mainWindow, app) {
     let minerProcess;
+    let isDestroyed = false;
 
     const unbufferPath = '/usr/local/bin/unbuffer';
     const oreCliPath = path.join(os.homedir(), '.cargo', 'bin', 'ore');
@@ -30,16 +31,23 @@ function startMining(event, options, mainWindow, app) {
         args.push('--cores', options.cores);
     }
 
-    minerProcess = spawn(unbufferPath, args, { 
+    minerProcess = spawn(unbufferPath, args, {
         shell: true,
         env: { ...process.env, TERM: 'xterm-256color' }
     });
 
+    function safeEmit(target, eventName, ...args) {
+        if (!isDestroyed && target && typeof target.send === 'function') {
+            target.send(eventName, ...args);
+        }
+    }
+
     minerProcess.stdout.on('data', (data) => {
+        if (isDestroyed) return;
+
         const cleanedOutput = cleanLog(data.toString().trim());
         const currentTime = Date.now();
 
-        // Detect and log "Best hash" messages
         if (cleanedOutput.includes('Best hash:')) {
             const match = cleanedOutput.match(/Best hash: (.+) \(difficulty (\d+)\)/);
             if (match) {
@@ -48,12 +56,11 @@ function startMining(event, options, mainWindow, app) {
 
                 const difficultyLogPath = path.join(app.getPath('userData'), `difficulty_${options.name}.log`);
                 const logEntry = `Best hash: ${bestHash} (difficulty ${difficulty}), Timestamp: ${new Date().toISOString()}\n`;
-                
+
                 fs.appendFileSync(difficultyLogPath, logEntry);
                 console.log(`Logged new best hash for profile: ${options.name}`);
-                
-                // Notify the renderer process about the new best hash
-                mainWindow.webContents.send('new-best-hash', { hash: bestHash, difficulty: difficulty });
+
+                safeEmit(mainWindow.webContents, 'new-best-hash', { hash: bestHash, difficulty: difficulty });
             }
         }
 
@@ -61,11 +68,13 @@ function startMining(event, options, mainWindow, app) {
         if (cleanedOutput !== lastLogContent || (currentTime - lastLogTimestamp) > 1000) {
             lastLogContent = cleanedOutput;
             lastLogTimestamp = currentTime;
-            mainWindow.webContents.send('miner-output', cleanedOutput);
+            safeEmit(mainWindow.webContents, 'miner-output', cleanedOutput);
         }
     });
 
     minerProcess.stderr.on('data', (data) => {
+        if (isDestroyed) return;
+
         const cleanedOutput = cleanLog(data.toString().trim());
         const currentTime = Date.now();
 
@@ -73,20 +82,27 @@ function startMining(event, options, mainWindow, app) {
         if (cleanedOutput !== lastLogContent || (currentTime - lastLogTimestamp) > 1000) {
             lastLogContent = cleanedOutput;
             lastLogTimestamp = currentTime;
-            mainWindow.webContents.send('miner-error', cleanedOutput);
+            safeEmit(mainWindow.webContents, 'miner-error', cleanedOutput);
         }
     });
 
     minerProcess.on('error', (error) => {
-        event.reply('mining-error', `Failed to start miner: ${error.message}`);
+        if (!isDestroyed) {
+            event.reply('mining-error', `Failed to start miner: ${error.message}`);
+        }
     });
 
     minerProcess.on('close', (code) => {
-        mainWindow.webContents.send('miner-stopped', code);
+        isDestroyed = true;
+        if (!isDestroyed) {
+            safeEmit(mainWindow.webContents, 'miner-stopped', code);
+        }
     });
 
-    event.reply('mining-started');
-    
+    if (!isDestroyed) {
+        event.reply('mining-started');
+    }
+
     return minerProcess;
 }
 

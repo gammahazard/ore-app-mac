@@ -19,14 +19,38 @@ const {
 let mainWindow;
 let minerProcess = null;
 
-app.whenReady().then(() => {
+function createMainWindow() {
     mainWindow = createWindow();
+
+    mainWindow.on('close', (e) => {
+        if (minerProcess) {
+            e.preventDefault(); // Prevent the window from closing immediately
+            stopMiningAndQuit();
+        }
+    });
+}
+
+function stopMiningAndQuit() {
+    console.log('Stopping mining process before quitting...');
+    stopMining(null, mainWindow, minerProcess)
+        .then(() => {
+            console.log('Mining process stopped successfully');
+            minerProcess = null;
+            app.quit(); // Quit the app after mining is stopped
+        })
+        .catch((error) => {
+            console.error('Error stopping mining process:', error);
+            app.quit(); // Quit the app even if there's an error
+        });
+}
+
+app.whenReady().then(() => {
+    createMainWindow();
+    
     app.on('activate', function () {
-        if (BrowserWindow.getAllWindows().length === 0) createWindow();
+        if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
     });
 });
-
-
 
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') app.quit();
@@ -40,8 +64,13 @@ ipcMain.on('start-mining', (event, options) => {
 });
 
 ipcMain.on('stop-mining', (event) => {
-    stopMining(event, mainWindow, minerProcess);
-    minerProcess = null;  // Reset after stopping
+    stopMining(event, mainWindow, minerProcess)
+        .then(() => {
+            minerProcess = null;  // Reset after stopping
+        })
+        .catch((error) => {
+            console.error('Error stopping mining process:', error);
+        });
 });
 
 ipcMain.on('save-profile', (event, profile) => saveProfile(app, event, profile));
@@ -51,7 +80,6 @@ ipcMain.handle('load-profiles', () => loadProfiles(app));
 ipcMain.on('execute-command', (event, options) => executeCommand(event, options, mainWindow));
 
 ipcMain.handle('get-ore-balance', (event, keypairPath) => oreBalance(event, keypairPath, app.isPackaged));
-
 
 ipcMain.handle('read-miner-log', () => minerLog(app));
 
