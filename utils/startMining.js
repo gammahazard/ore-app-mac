@@ -4,7 +4,7 @@ const fs = require('fs');
 const cleanLog = require('./cleanLog');
 const buildMinerArgs = require('./minerArgs');
 const stopMining = require('./stopMining');
-const checkMaxTX = require('./maxtxcheck');
+const checkMaxTX = require('./maxTXcheck');
 const createMinerProcess = require('./minerProcess');
 const { handleMinerOutput } = require('./logHandler');
 
