@@ -3,6 +3,8 @@
 
 Welcome to the source code repository for the Ore CPU Miner App for macOS. This app is designed to make mining with your CPU using the Ore CLI more user-friendly.
 
+Currently transfer is not functioning, please import your private key to a solana wallet in order to transfer or use cli commands from your terminal!
+
 ## Requirements
 
 To get started with the Ore CPU Miner App, you'll need to have the following installed on your macOS:
@@ -53,6 +55,7 @@ After installing all the necessary dependencies, you can start using the Ore CPU
 - **Claim, Stake, Transfer ORE**
 - **Set up to 5 different profiles, track average difficulty and top hashes for each profile**
 - **Easily set up custom options for your miner, including specifying dynamic/static priority fee, dynamic fee RPC URL, max dynamic fee, custom RPC URL, custom keypair path, and a fee payer path**
+- **Balance is dynamically updated when claiming, staking and mining**
 - **More functionalities coming soon!**
 
 ### Screenshots
