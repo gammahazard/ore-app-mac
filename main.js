@@ -15,7 +15,6 @@ const deleteProfile = require('./utils/deleteProfile');
 const {
     getAvgDifficulty,
     getDifficultyDetails,
-    getFullDifficultyLog,
     getBestHash
 } = require('./utils/difficultyDetails');
 
