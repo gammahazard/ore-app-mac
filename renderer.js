@@ -23,6 +23,16 @@ function initialize() {
   setupLogUpdates();
 
 }
+//intervalled listeners
+ipcRenderer.on('update-ore-price', (_, orePrice) => {
+  if (domElements.orePrice) {
+    domElements.orePrice.textContent = `ORE/USDC: ${orePrice}`;
+  } else {
+    console.error('ORE price element not found in DOM');
+  }
+});
+
+
 
 // Event listeners
 function setupEventListeners() {
