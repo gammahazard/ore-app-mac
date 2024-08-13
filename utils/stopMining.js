@@ -12,7 +12,7 @@ function stopMining(event, mainWindow, minerProcess) {
         let killTimeout = setTimeout(() => {
             console.log('Mining process did not exit, forcing kill...');
             minerProcess.kill('SIGKILL');
-        }, 1000); // Reduced from 5000 to 1000 ms for quicker forced kill
+        }, 1000); 
 
         minerProcess.on('exit', (code, signal) => {
             clearTimeout(killTimeout);

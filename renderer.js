@@ -11,37 +11,33 @@ const { initializeModalManagement } = require('./renderer/modalManagement.js');
 const { appendToLog, handleFeeTypeChange, setupLogUpdates } = require('./renderer/utils.js');
 const cleanLog = require('./utils/cleanLog.js');
 
-let lastLogMessage = ''; // To track the last log message to prevent duplicates
+let lastLogMessage = ''; 
 
 function initialize() {
   initializeMiningOperations();
   initializeProfileManagement();
   initializeDifficultyManagement(getCurrentProfile);
-  initializeModalManagement();
-  checkOreCliInstallation();
+  initializeModalManagement()
+  checkInstallations();
   setupEventListeners();
   setupLogUpdates();
 
 }
-//intervalled listeners
-ipcRenderer.on('update-ore-price', (_, orePrice) => {
-  if (domElements.orePrice) {
-    domElements.orePrice.textContent = `ORE/USDC: ${orePrice}`;
-  } else {
-    console.error('ORE price element not found in DOM');
-  }
-});
-
 
 
 // Event listeners
 function setupEventListeners() {
   domElements.feeTypeSelect.addEventListener('change', handleFeeTypeChange);
-
+  ipcRenderer.on('update-ore-price', (_, orePrice) => {
+    if (domElements.orePrice) {
+      domElements.orePrice.textContent = `ORE/USDC: ${orePrice}`;
+    } else {
+      console.error('ORE price element not found in DOM');
+    }
+  });
   ipcRenderer.on('ore-balance-updated', (_, balance) => {
     document.getElementById('ore-balance').textContent = `ORE Balance: ${balance}`;
   });
-
   ipcRenderer.on('mining-started', handleMiningStarted);
   ipcRenderer.on('mining-stopping', handleMiningStopping);
   ipcRenderer.on('mining-stopped', handleMiningStopped);
@@ -55,8 +51,18 @@ function setupEventListeners() {
   ipcRenderer.on('profile-delete-error', handleProfileDeleteError);
   ipcRenderer.on('difficulty-updated', handleDifficultyUpdated);
   ipcRenderer.on('command-output', handleCommandOutput);
-  ipcRenderer.on('new-best-hash', handleNewBestHash); // Moved under event listeners
+  ipcRenderer.on('new-best-hash', handleNewBestHash); 
+ ipcRenderer.on('installation-check-results', (_, results) => {
+    console.log('Received installation check results:', results);
+    if (results) {
+      handleInstallationCheckResults(results);
+    } else {
+      console.error('Received undefined installation check results');
+    }
+  });
 }
+
+
 
 // Ensure proper cleanup when the window is closed
 function cleanup() {
@@ -67,60 +73,131 @@ function cleanup() {
 // Call cleanup function before the window is unloaded
 window.addEventListener('beforeunload', cleanup);
 
-function checkOreCliInstallation() {
-  ipcRenderer.invoke('check-ore-cli').then((result) => {
-    if (result.installed) {
-      domElements.oreCliStatus.textContent = `ore-cli found at: ${result.path}`;
-      domElements.startMinerBtn.disabled = false;
-      document.getElementById('app').style.display = 'block';
-      domElements.feeTypeSelect.dispatchEvent(new Event('change'));
-    } else {
-      domElements.oreCliStatus.textContent = `ore-cli not found. Error: ${result.error}`;
-      domElements.startMinerBtn.disabled = true;
-      domElements.oreCliError.style.display = 'block';
-    }
+function checkInstallations() {
+  console.log('Checking installations...');
+  const modal = document.getElementById('install-check-modal');
+  const modalContent = document.getElementById('modal-content');
+  
+  if (!modal || !modalContent) {
+      console.error('Modal elements not found');
+      return;
+  }
+  
+  modalContent.textContent = 'Checking installations...';
+  modal.style.display = 'block';
+  console.log('Displaying modal...');
+  
+  ipcRenderer.invoke('run-installation-checks').then((results) => {
+      console.log('Installation check results:', results);
+      handleInstallationCheckResults(results);
+  }).catch((error) => {
+      console.error('Error running installation checks:', error);
   });
 }
 
+function handleInstallationCheckResults(results) {
+  if (!results || typeof results !== 'object') {
+    console.error('Invalid installation check results:', results);
+    return;
+  }
 
+  console.log('Handling installation check results:', results);
+  const modal = document.getElementById('install-check-modal');
+  const modalContent = document.getElementById('modal-content');
+  
+  if (!modal || !modalContent) {
+    console.error('Modal elements not found in handleInstallationCheckResults');
+    return;
+  }
+  
+  let allInstalled = true;
+  let resultHtml = '';
 
+  for (const [toolName, result] of Object.entries(results)) {
+    const statusText = document.getElementById(`${toolName}-status-text`);
+    const checkmark = document.getElementById(`${toolName}-checkmark`);
+    
+    if (!statusText || !checkmark) {
+      console.error(`Elements for ${toolName} not found`);
+      continue;
+    }
+
+    if (result.installed) {
+      statusText.textContent = `${toolName.toUpperCase()} FOUND!`;
+      checkmark.style.display = 'inline';
+      resultHtml += `<p>${toolName} found at: ${result.path}</p>`;
+      if (result.version) {
+        resultHtml += `<p>${toolName} version: ${result.version}</p>`;
+      }
+    } else {
+      statusText.textContent = `${toolName} not found`;
+      checkmark.style.display = 'none';
+      resultHtml += `<p>${toolName} error: ${result.error}</p>`;
+      allInstalled = false;
+    }
+  }
+  
+  modalContent.innerHTML = resultHtml;
+  
+  if (allInstalled) {
+    domElements.startMinerBtn.disabled = false;
+    console.log('All tools found, will hide modal in 2 seconds');
+    setTimeout(() => {
+      modal.style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      console.log('Modal hidden, app displayed');
+    }, 2000);
+  } else {
+    domElements.startMinerBtn.disabled = true;
+    const closeBtn = modal.querySelector('.close');
+    if (closeBtn) {
+      closeBtn.onclick = () => {
+        modal.style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        console.log('Modal closed by user, app displayed');
+      };
+    } else {
+      console.error('Close button not found in modal');
+    }
+  }
+}
 
 function handleOutput(source, data) {
   const cleanedLog = cleanLog(data);
 
-  // Only log if the cleaned log message is different from the last one
+  // displays cleaned log to user on ui
   if (cleanedLog && cleanedLog !== lastLogMessage) {
     appendToLog(cleanedLog);
     lastLogMessage = cleanedLog;
     console.log(`${source}:`, cleanedLog);
   }
 }
-
+//btn control for started miner
 function handleMiningStarted() {
   domElements.startMinerBtn.disabled = true;
   domElements.stopMinerBtn.disabled = false;
   appendToLog('Mining started');
 }
-
+//btn control for miner in process of stopping
 function handleMiningStopping() {
   domElements.startMinerBtn.disabled = true;
   domElements.stopMinerBtn.disabled = true;
   appendToLog('Stopping miner...');
 }
-
+//btn control for miner stopped 
 function handleMiningStopped() {
   domElements.startMinerBtn.disabled = false;
   domElements.stopMinerBtn.disabled = true;
   appendToLog('Mining stopped');
 }
-
+//btn control for miner error
 function handleMiningError(_, error) {
   console.error('Mining error:', error);
   appendToLog(`Error: ${error}`);
   domElements.startMinerBtn.disabled = false;
   domElements.stopMinerBtn.disabled = true;
 }
-
+// not called, handles if panicked at error becomes more prevalent
 function handleMinerOutput(_, data) {
   console.log('Miner output:', data);
   appendToLog(data);
@@ -172,6 +249,7 @@ function handleDifficultyUpdated(_, updatedProfileName) {
 function handleCommandOutput(_, log) {
   appendToLog(log);
 }
+
 
 // Initialize the application
 initialize();

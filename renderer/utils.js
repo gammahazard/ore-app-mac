@@ -1,4 +1,4 @@
-// File: renderer/utils.js
+
 const { ipcRenderer } = require('electron');
 const domElements = require('./domElements.js');
 

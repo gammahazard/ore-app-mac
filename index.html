@@ -7,13 +7,15 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="app">
+    <div id="app" style="display:none">
         <header>
             <div class="navbar">
                 <div id="ore-balance" class="navbar-item"></div>
+                <div id="ore-price" class="navbar-item">ORE/USDC: Fetching...</div> <!-- New line added -->
                 <div id="avg-difficulty" class="navbar-item">Average Difficulty: Select a profile</div>
                 <div id="best-hash" class="navbar-item">Best Hash: Select a profile</div>
             </div>
+            
             <div class="action-buttons">
                 <button id="transfer-button">Transfer</button>
                 <button id="stake-button">Stake</button>
@@ -22,7 +24,7 @@
         </header>
 
         <main>
-            <p id="ore-cli-status">Checking ore-cli installation...</p>
+          
 
             <section id="profiles">
                 <h2>Profiles</h2>
@@ -111,6 +113,8 @@
             </div>
         </div>
 
+   
+
         <div id="transfer-modal" class="modal"  style="display:none!important">
             <div class="modal-content">
                 <span class="close" id="transfer-close">&times;</span>
@@ -191,16 +195,33 @@
         <button id="start-miner" disabled>Start Miner</button>
         <button id="stop-miner" disabled>Stop Miner</button>
     </div>
-    <script>
-        // Hide ore-cli status after 2 seconds
-        setTimeout(() => {
-            const oreCliStatus = document.getElementById('ore-cli-status');
-            oreCliStatus.style.opacity = '0';
-            setTimeout(() => {
-                oreCliStatus.style.display = 'none';
-            }, 500);
-        }, 2000);
-    </script>
+
+    <!-- keep outside main app to keep visible on app load -->
+    <div id="install-check-modal" class="modal" style="display:block;">
+        <div class="modal-content">
+         
+            <h2>Installation Checks</h2>
+            <div id="ore-cli-status" class="status-row">
+                <p id="ore-cli-status-text">Checking ore-cli installation...</p>
+                <span id="ore-cli-checkmark" class="checkmark" style="display:none;">&#10004;</span>
+            </div>
+            <div id="unbuffer-status" class="status-row">
+                <p id="unbuffer-status-text">Checking unbuffer installation...</p>
+                <span id="unbuffer-checkmark" class="checkmark" style="display:none;">&#10004;</span>
+            </div>
+            <div id="rust-status" class="status-row">
+                <p id="rust-status-text">Checking Rust installation...</p>
+                <span id="rust-checkmark" class="checkmark" style="display:none;">&#10004;</span>
+            </div>
+            <div id="homebrew-status" class="status-row">
+                <p id="homebrew-status-text">Checking Homebrew installation...</p>
+                <span id="homebrew-checkmark" class="checkmark" style="display:none;">&#10004;</span>
+            </div>
+            <pre id="modal-content"></pre>
+        </div>
+    </div>
+
+
     <script src="renderer.js"></script>
 </body>
 </html>

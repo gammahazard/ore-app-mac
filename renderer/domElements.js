@@ -1,4 +1,3 @@
-// File: renderer/domElements.js
 const domElements = {
     oreCliStatus: document.getElementById('ore-cli-status'),
     startMinerBtn: document.getElementById('start-miner'),
@@ -12,6 +11,9 @@ const domElements = {
     saveProfileBtn: document.getElementById('save-profile'),
     bestHashElement: document.getElementById('best-hash'),
     profileNameInput: document.getElementById('profile-name'),
+    installCheckModal: document.getElementById('install-check-modal'),
+    installCheckModalContent: document.getElementById('modal-content'),
+    installCheckModalClose: document.querySelector('#install-check-modal .close'),
     logContent: document.getElementById('log-content'),
     avgDifficulty: document.getElementById('avg-difficulty'),
     showDifficultyDetailsBtn: document.getElementById('show-difficulty-details'),
@@ -31,6 +33,8 @@ const domElements = {
     claimClose: document.getElementById('claim-close'),
     transferAddressInput: document.getElementById('transfer-address'),
     difficultyClose: document.querySelector('#difficulty-modal .close'),
+    orePrice: document.getElementById('ore-price'), // Reference to the new ORE/USDC price element
+    oreBalance: document.getElementById('ore-balance'), // Reference to the new ORE/USDC price element
 };
 
 module.exports = domElements;

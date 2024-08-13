@@ -9,7 +9,7 @@ function handleMinerOutput(data, options, app, safeEmit, mainWindow) {
     const cleanedOutput = cleanLog(data.toString().trim());
     const currentTime = Date.now();
 
-    // Check for transaction submission attempts
+    // look for trx submission attempts and restart if it hits the specified cap 
     const submissionMatch = cleanedOutput.match(/Submitting transaction... \(attempt (\d+)\)/);
     if (submissionMatch) {
         const attemptNumber = parseInt(submissionMatch[1], 10);
@@ -29,7 +29,7 @@ function handleMinerOutput(data, options, app, safeEmit, mainWindow) {
         safeEmit(mainWindow.webContents, 'miner-output', message);
         return { shouldRestart: true, reason: 'max-retries' };
     }
-
+//update new best hash if one is found
     if (cleanedOutput.includes('Best hash:')) {
         const match = cleanedOutput.match(/Best hash: (.+) \(difficulty (\d+)\)/);
         if (match) {
@@ -53,7 +53,7 @@ function logBestHash(bestHash, difficulty, options, app) {
     const difficultyLogPath = path.join(app.getPath('userData'), `difficulty_${options.name}.log`);
     const logEntry = `Best hash: ${bestHash} (difficulty ${difficulty}), Timestamp: ${new Date().toISOString()}\n`;
     fs.appendFileSync(difficultyLogPath, logEntry);
-    console.log(`Logged new best hash for profile: ${options.name}`);
+    console.log(`Logged new hash for profile: ${options.name}`);
 }
 
 module.exports = { handleMinerOutput };

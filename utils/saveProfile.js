@@ -13,7 +13,7 @@ function saveProfile(app, event, profile) {
     try {
         profiles = JSON.parse(fs.readFileSync(profilesPath, 'utf8'));
     } catch (error) {
-        // File doesn't exist or is invalid, we'll create a new one
+        
         console.log('Creating new profiles file');
     }
 
@@ -27,7 +27,7 @@ function saveProfile(app, event, profile) {
     fs.writeFileSync(profilesPath, JSON.stringify(profiles));
     event.reply('profile-saved', profiles);
 
-    // Create or ensure the difficulty log file exists
+    
     const difficultyLogPath = path.join(app.getPath('userData'), `difficulty_${profile.name}.log`);
     if (!fs.existsSync(difficultyLogPath)) {
         fs.writeFileSync(difficultyLogPath, '');

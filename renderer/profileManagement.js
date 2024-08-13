@@ -1,9 +1,9 @@
-// File: renderer/profileManagement.js
 const { ipcRenderer } = require('electron');
 const domElements = require('./domElements.js');
 const difficultyManagement = require('./difficultyManagement.js');
 
 let currentProfile = null;
+let balanceInterval = null; // Interval ID for checking balance
 
 function initializeProfileManagement() {
   domElements.saveProfileBtn.addEventListener('click', saveProfile);
@@ -64,13 +64,32 @@ function loadProfile(profile) {
   domElements.feeTypeSelect.dispatchEvent(new Event('change'));
   difficultyManagement.updateDifficultyInfo(getCurrentProfile);
 
-  ipcRenderer.invoke('get-ore-balance', profile.keypairPath).then((balance) => {
-    document.getElementById('ore-balance').textContent = `${balance}`;
+  // Ensure the oreBalance element is visible and has some placeholder text
+  domElements.oreBalance.textContent = 'Loading ORE Balance...';
+
+  // Clear the existing interval if there is one
+  if (balanceInterval) {
+    clearInterval(balanceInterval);
+  }
+
+  // Immediately fetch the balance
+  fetchOreBalance(profile.keypairPath);
+
+  // Set an interval to fetch the balance every 10 seconds
+  balanceInterval = setInterval(() => {
+    fetchOreBalance(profile.keypairPath);
+  }, 10000); // 10000 milliseconds = 10 seconds
+}
+
+function fetchOreBalance(keypairPath) {
+  ipcRenderer.invoke('get-ore-balance', keypairPath).then((balance) => {
+    domElements.oreBalance.textContent = `ORE Balance: ${balance}`;
   }).catch((error) => {
-    document.getElementById('ore-balance').textContent = 'Balance: Error';
+    domElements.oreBalance.textContent = 'Balance: Error';
     console.error('Failed to get ORE balance:', error);
   });
 }
+
 
 function deleteProfile(profileName) {
   if (confirm(`Are you sure you want to delete the profile "${profileName}"?`)) {
@@ -79,6 +98,9 @@ function deleteProfile(profileName) {
 }
 
 function clearProfileForm() {
+  if (balanceInterval) {
+    clearInterval(balanceInterval); // Clear the interval when no profile is selected
+  }
   domElements.minerForm.reset();
   domElements.profileNameInput.value = '';
   difficultyManagement.updateDifficultyInfo(getCurrentProfile);

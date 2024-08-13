@@ -164,6 +164,8 @@ section {
     justify-content: center;
 }
 
+
+
 .modal-content {
     background-color: #2e2e2e;
     padding: 20px;
@@ -199,4 +201,31 @@ section {
     display: flex;
     justify-content: space-around;
     margin-bottom: 20px;
+}
+
+/* Installation check styles */
+.status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+}
+
+.status-row p {
+    margin: 0;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.checkmark {
+    color: #4CAF50;
+    font-size: 24px;
+}
+
+#modal-content {
+    margin-top: 20px;
+    font-style: italic;
 }

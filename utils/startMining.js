@@ -40,7 +40,13 @@ function startMining(event, options, mainWindow, app, onRestart) {
             });
     }
 
-    minerProcess = createMinerProcess(args);
+    try {
+        minerProcess = createMinerProcess(args);
+    } catch (error) {
+        console.error('Error creating miner process:', error);
+        event.reply('mining-error', `Failed to create miner process: ${error.message}`);
+        return null;
+    }
 
     function safeEmit(target, eventName, ...args) {
         if (!isDestroyed && target && typeof target.send === 'function') {
