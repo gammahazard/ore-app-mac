@@ -18,6 +18,7 @@ const oreBalance = async (event, keypairPath) => {
 
     oreProcess.stdout.on('data', (data) => {
       output += data.toString();
+      console.log(data.toString())
     });
 
     oreProcess.stderr.on('data', (data) => {
