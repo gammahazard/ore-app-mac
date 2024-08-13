@@ -1,4 +1,4 @@
-// File: renderer/miningOperations.js
+
 const { ipcRenderer } = require('electron');
 const domElements = require('./domElements.js');
 const { getCurrentProfile } = require('./profileManagement.js');

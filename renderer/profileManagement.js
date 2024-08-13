@@ -51,7 +51,7 @@ function loadProfiles() {
     });
   });
 }
-
+// edit this to change loaded profile behaviour 
 function loadProfile(profile) {
   currentProfile = profile;
   Object.keys(profile).forEach((key) => {
@@ -64,18 +64,18 @@ function loadProfile(profile) {
   domElements.feeTypeSelect.dispatchEvent(new Event('change'));
   difficultyManagement.updateDifficultyInfo(getCurrentProfile);
 
-  // Ensure the oreBalance element is visible and has some placeholder text
+ 
   domElements.oreBalance.textContent = 'Loading ORE Balance...';
 
-  // Clear the existing interval if there is one
+  
   if (balanceInterval) {
     clearInterval(balanceInterval);
   }
 
-  // Immediately fetch the balance
+// fetch balance on new profile load 
   fetchOreBalance(profile.keypairPath);
 
-  // Set an interval to fetch the balance every 10 seconds
+  // set an interval to fetch the balance every 10 seconds
   balanceInterval = setInterval(() => {
     fetchOreBalance(profile.keypairPath);
   }, 10000); // 10000 milliseconds = 10 seconds

@@ -33,8 +33,8 @@ const domElements = {
     claimClose: document.getElementById('claim-close'),
     transferAddressInput: document.getElementById('transfer-address'),
     difficultyClose: document.querySelector('#difficulty-modal .close'),
-    orePrice: document.getElementById('ore-price'), // Reference to the new ORE/USDC price element
-    oreBalance: document.getElementById('ore-balance'), // Reference to the new ORE/USDC price element
+    orePrice: document.getElementById('ore-price'), 
+    oreBalance: document.getElementById('ore-balance'), 
 };
 
 module.exports = domElements;
