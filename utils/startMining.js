@@ -10,7 +10,7 @@ const { handleMinerOutput, resetPanicCount } = require('./logHandler');
 
 const RESTART_DELAY = 5000; // 5 seconds delay before restarting
 
-function startMining(event, options, mainWindow, app, onRestart) {
+function startMining(event, options, mainWindow, app, onRestart, setMiningState) {
     let minerProcess;
     let isDestroyed = false;
 
@@ -27,14 +27,16 @@ function startMining(event, options, mainWindow, app, onRestart) {
         stopMining(event, mainWindow, minerProcess)
             .then(() => {
                 setTimeout(() => {
-                    const newMiner = startMining(event, options, mainWindow, app, onRestart);
+                    setMiningState(false);
+                    const newMiner = startMining(event, options, mainWindow, app, onRestart, setMiningState);
                     onRestart(newMiner);
                 }, RESTART_DELAY);
             })
             .catch((error) => {
                 console.error('Error stopping miner during restart:', error);
+                setMiningState(false);
                 setTimeout(() => {
-                    const newMiner = startMining(event, options, mainWindow, app, onRestart);
+                    const newMiner = startMining(event, options, mainWindow, app, onRestart, setMiningState);
                     onRestart(newMiner);
                 }, RESTART_DELAY);
             });
@@ -45,6 +47,7 @@ function startMining(event, options, mainWindow, app, onRestart) {
     } catch (error) {
         console.error('Error creating miner process:', error);
         event.reply('mining-error', `Failed to create miner process: ${error.message}`);
+        setMiningState(false);
         return null;
     }
 
@@ -59,7 +62,9 @@ function startMining(event, options, mainWindow, app, onRestart) {
 
         const { shouldRestart, shouldStop, reason } = handleMinerOutput(data, options, app, safeEmit, mainWindow);
         if (shouldStop) {
-            stopMining(event, mainWindow, minerProcess);
+            stopMining(event, mainWindow, minerProcess).then(() => {
+                setMiningState(false);
+            });
             return;
         }
         if (shouldRestart) {
@@ -84,6 +89,7 @@ function startMining(event, options, mainWindow, app, onRestart) {
     minerProcess.on('error', (error) => {
         if (!isDestroyed) {
             event.reply('mining-error', `Failed to start miner: ${error.message}`);
+            setMiningState(false);
         }
     });
 
@@ -92,12 +98,14 @@ function startMining(event, options, mainWindow, app, onRestart) {
             const message = `Miner process exited with code ${code}`;
             console.log(message);
             safeEmit(mainWindow.webContents, 'miner-stopped', message);
-            resetPanicCount(); // Reset panic count when miner closes normally
+            resetPanicCount();
+            setMiningState(false);
         }
     });
 
     if (!isDestroyed) {
         event.reply('mining-started');
+        setMiningState(true);
     }
 
     return minerProcess;

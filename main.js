@@ -25,6 +25,8 @@ const {
 
 let mainWindow;
 let currentMiner = null;
+let isMining = false;
+
 
 // Define the installation checks
 const installationChecks = [
@@ -49,6 +51,12 @@ function createMainWindow() {
     runInstallationChecks();
 }
 
+function setMiningState(state) {
+    isMining = state;
+    if (mainWindow && mainWindow.webContents) {
+        mainWindow.webContents.send('mining-state-changed', state);
+    }
+}
 async function runInstallationChecks() {
     const results = {};
     for (const check of installationChecks) {
@@ -117,11 +125,23 @@ app.on('window-all-closed', function () {
 });
 
 //ipc renderer on
+ipcMain.on('start-mining', (event, options) => {
+    if (isMining) {
+        event.reply('mining-error', 'Mining is already in progress');
+        return;
+    }
+    currentMiner = startMining(event, options, mainWindow, app, updateMinerReference, setMiningState);
+    if (currentMiner) {
+        setMiningState(true);
+    }
+});
+
 ipcMain.on('stop-mining', async (event) => {
     if (currentMiner) {
         try {
             await stopMining(event, mainWindow, currentMiner);
             currentMiner = null;
+            setMiningState(false);
             console.log('Mining stopped successfully');
             event.reply('mining-stopped');
         } catch (error) {
@@ -136,13 +156,6 @@ ipcMain.on('stop-mining', async (event) => {
 ipcMain.on('execute-command', (event, options) => executeCommand(event, options, mainWindow));
 ipcMain.on('save-profile', (event, profile) => saveProfile(app, event, profile));
 ipcMain.on('delete-profile', (event, profileName) => deleteProfile(app, event, profileName));
-ipcMain.on('start-mining', (event, options) => {
-    if (currentMiner) {
-        event.reply('mining-error', 'Mining is already in progress');
-        return;
-    }
-    currentMiner = startMining(event, options, mainWindow, app, updateMinerReference);
-});
 //ipc renderer handle
 ipcMain.handle('load-profiles', () => loadProfiles(app));
 ipcMain.handle('get-ore-balance', (event, keypairPath) => oreBalance(event, keypairPath, app.isPackaged));
