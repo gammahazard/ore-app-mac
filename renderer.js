@@ -197,15 +197,6 @@ function handleMiningError(_, error) {
   domElements.startMinerBtn.disabled = false;
   domElements.stopMinerBtn.disabled = true;
 }
-// not called, handles if panicked at error becomes more prevalent
-function handleMinerOutput(_, data) {
-  console.log('Miner output:', data);
-  appendToLog(data);
-  if (data.includes('panicked at') || data.includes('Error:')) {
-    domElements.startMinerBtn.disabled = false;
-    domElements.stopMinerBtn.disabled = true;
-  }
-}
 
 function handleMinerError(_, error) {
   console.error('Miner error:', error);
