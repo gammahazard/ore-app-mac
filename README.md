@@ -65,8 +65,8 @@ After installing all the necessary dependencies, you can start using the Ore CPU
 - **Main Interface:** ![Main Interface](https://i.imgur.com/Sq83YdI.png)
 - **Difficulty Info:** ![Difficulty Info](https://i.imgur.com/LrMcoEq.png)
 - **Mining:** ![Mining](https://i.imgur.com/uAfaoMy.png)
-- **Automatic Restarts on panick and max submissions** ![Automatic Restarts](https://imgur.com/a/OCdegsM)
-- **Software and dependency check before miner loads** ![Dependency Check](https://imgur.com/a/FDER0xB)
+- **Automatic Restarts on panick and max submissions** ![Automatic Restarts](https://i.imgur.com/QjWM2PA.png)
+- **Software and dependency check before miner loads** ![Dependency Check](https://i.imgur.com/HIYhH1Q.png)
 
 ## Contributing
 
