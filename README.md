@@ -59,12 +59,13 @@ After installing all the necessary dependencies, you can start using the Ore CPU
 - **Indicate # of tx submissions before miner will restart**
 - **Automatic restarting when miner panicks**
 - **Initial check for installed software, with the ability to bypass incase it fails**
+- **Solana CLI addition, display solana address and balance within UI, balance is updated dynamically**
 
 ### Screenshots
 
-- **Main Interface:** ![Main Interface](https://i.imgur.com/Sq83YdI.png)
+- **Main Interface:** ![Main Interface](https://i.imgur.com/qWD0Nn8.png)
 - **Difficulty Info:** ![Difficulty Info](https://i.imgur.com/LrMcoEq.png)
-- **Mining:** ![Mining](https://i.imgur.com/uAfaoMy.png)
+- **Mining:** ![Mining](https://i.imgur.com/BA5WbbJ.png)
 - **Automatic Restarts on panick and max submissions** ![Automatic Restarts](https://i.imgur.com/QjWM2PA.png)
 - **Software and dependency check before miner loads** ![Dependency Check](https://i.imgur.com/HIYhH1Q.png)
 
