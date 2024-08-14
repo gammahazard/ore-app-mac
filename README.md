@@ -7,7 +7,7 @@ Welcome to the source code repository for the Ore CPU Miner App for macOS. This 
 
 ## Requirements
 
-To get started with the Ore CPU Miner App, you'll need to have the following installed on your macOS:
+To get started with the Ore CPU Miner App, you'll need to have the following installed on your macOS, the app will attempt to locate if you have these installed or not:
 
 - **Homebrew**
 - **unbuffer** (included with expect)
@@ -56,13 +56,17 @@ After installing all the necessary dependencies, you can start using the Ore CPU
 - **Set up to 5 different profiles, track average difficulty and top hashes for each profile**
 - **Easily set up custom options for your miner, including specifying dynamic/static priority fee, dynamic fee RPC URL, max dynamic fee, custom RPC URL, custom keypair path, and a fee payer path**
 - **Balance is dynamically updated when claiming, staking and mining**
-- **More functionalities coming soon!**
+- **Indicate # of tx submissions before miner will restart**
+- **Automatic restarting when miner panicks**
+- **Initial check for installed software, with the ability to bypass incase it fails**
 
 ### Screenshots
 
 - **Main Interface:** ![Main Interface](https://i.imgur.com/Sq83YdI.png)
 - **Difficulty Info:** ![Difficulty Info](https://i.imgur.com/LrMcoEq.png)
 - **Mining:** ![Mining](https://i.imgur.com/uAfaoMy.png)
+- **Automatic Restarts on panick and max submissions** ![Automatic Restarts](https://imgur.com/a/OCdegsM)
+- **Software and dependency check before miner loads** ![Dependency Check](https://imgur.com/a/FDER0xB)
 
 ## Contributing
 
