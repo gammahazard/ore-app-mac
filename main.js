@@ -5,6 +5,7 @@ const checkOreCli = require('./utils/install-checks/checkOreCli');
 const findUnbufferPath = require('./utils/install-checks/BufferExists');
 const findRustPath = require('./utils/install-checks/RustExists');
 const findBrewPath = require('./utils/install-checks/BrewExists');
+const checkSolanaCli = require('./utils/install-checks/checkSolanaCli.js');
 const startMining = require('./utils/startMining');
 const stopMining = require('./utils/stopMining');
 const saveProfile = require('./utils/saveProfile');
@@ -14,6 +15,8 @@ const oreBalance = require('./utils/oreBalance');
 const minerLog = require('./utils/minerLog');
 const deleteProfile = require('./utils/deleteProfile');
 const getOREPrice = require('./utils/getTokenPrices');
+const solanaBalance = require('./utils/solanaBalance');
+const solanaAddress = require('./utils/solanaAddress');
 
 const {
     getAvgDifficulty,
@@ -33,7 +36,9 @@ const installationChecks = [
     { name: 'ore-cli', check: checkOreCli },
     { name: 'unbuffer', check: findUnbufferPath },
     { name: 'rust', check: findRustPath },
-    { name: 'homebrew', check: findBrewPath}
+    { name: 'homebrew', check: findBrewPath},
+    { name: 'solana-cli', check: checkSolanaCli }
+
 ];
 
 function createMainWindow() {
@@ -165,4 +170,13 @@ ipcMain.handle('get-difficulty-details', (event, profileName) => getDifficultyDe
 ipcMain.handle('get-best-hash', (event, profileName) => getBestHash(app, event, profileName));
 ipcMain.handle('get-full-difficulty-log', (event, profileName) => getFullDifficultyLog(app, event, profileName));
 ipcMain.handle('run-installation-checks', runInstallationChecks);
-
+ipcMain.handle('get-solana-balance', (event, keypairPath) => solanaBalance(event, keypairPath));
+ipcMain.handle('get-solana-public-address', async (event, keypairPath) => {
+    try {
+      const address = await solanaAddress(keypairPath);
+      return address;
+    } catch (error) {
+      console.error('Error getting Solana address:', error);
+      throw error;
+    }
+  });

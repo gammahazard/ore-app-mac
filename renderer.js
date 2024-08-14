@@ -1,7 +1,8 @@
 const { ipcRenderer } = require('electron');
 const domElements = require('./renderer/domElements.js');
 const { initializeMiningOperations } = require('./renderer/miningOperations.js');
-const { initializeProfileManagement, getCurrentProfile, clearProfileForm, loadProfiles } = require('./renderer/profileManagement.js');
+const { initializeProfileManagement, clearProfileForm, loadProfiles } = require('./renderer/profileManagement.js');
+const sharedState = require('./renderer/sharedState.js');
 const { 
   initializeDifficultyManagement, 
   updateDifficultyInfo, 
@@ -16,11 +17,14 @@ let lastLogMessage = '';
 function initialize() {
   initializeMiningOperations();
   initializeProfileManagement();
-  initializeDifficultyManagement(getCurrentProfile);
+  initializeDifficultyManagement(sharedState.getCurrentProfile);
   initializeModalManagement();
   checkInstallations();
   setupEventListeners();
   setupLogUpdates();
+
+  // Update button states initially
+  sharedState.updateButtonStates();
 
   const continueButton = document.getElementById('continue-anyway');
   continueButton.addEventListener('click', function() {
@@ -173,35 +177,31 @@ function handleOutput(source, data) {
 }
 //btn control for started miner
 function handleMiningStarted() {
-  domElements.startMinerBtn.disabled = true;
-  domElements.stopMinerBtn.disabled = false;
+  sharedState.setMiningState(true);
   appendToLog('Mining started');
 }
-//btn control for miner in process of stopping
+
 function handleMiningStopping() {
   domElements.startMinerBtn.disabled = true;
   domElements.stopMinerBtn.disabled = true;
   appendToLog('Stopping miner...');
 }
-//btn control for miner stopped 
+
 function handleMiningStopped() {
-  domElements.startMinerBtn.disabled = false;
-  domElements.stopMinerBtn.disabled = true;
+  sharedState.setMiningState(false);
   appendToLog('Mining stopped');
 }
-//btn control for miner error
+
 function handleMiningError(_, error) {
   console.error('Mining error:', error);
   appendToLog(`Error: ${error}`);
-  domElements.startMinerBtn.disabled = false;
-  domElements.stopMinerBtn.disabled = true;
+  sharedState.setMiningState(false);
 }
 
 function handleMinerError(_, error) {
   console.error('Miner error:', error);
   appendToLog(`Error: ${error}`);
-  domElements.startMinerBtn.disabled = false;
-  domElements.stopMinerBtn.disabled = true;
+  sharedState.setMiningState(false);
 }
 
 function handleCommandSuccess(_, message) {

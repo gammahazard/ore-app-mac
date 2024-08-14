@@ -5,15 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ore Miner</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div id="app" style="display:none">
         <header>
             <div class="navbar">
-                <div id="ore-balance" class="navbar-item"></div>
-                <div id="ore-price" class="navbar-item">ORE/USDC: Fetching...</div> <!-- New line added -->
-                <div id="avg-difficulty" class="navbar-item">Average Difficulty: Select a profile</div>
-                <div id="best-hash" class="navbar-item">Best Hash: Select a profile</div>
+                <div id="solana-address" class="navbar-item">
+                    <span class="address-label">Solana Address: </span>
+                    <span id="solana-address-value" class="address-value" title="Click to copy">Loading...</span>
+                  </div>
+                <div id="ore-balance" class="navbar-item">ORE: Select or make a Profile</div>
+                <div id="solana-balance" class="navbar-item">Solana Balance: Select or make a profile</div>
+                <div id="ore-price" class="navbar-item">ORE/USDC: Fetching...</div> 
+                <div id="avg-difficulty" class="navbar-item">Average Difficulty: Select or make a profile</div>
+                <div id="best-hash" class="navbar-item">Best Hash: Select or make a profile</div>
             </div>
             
             <div class="action-buttons">
@@ -192,20 +198,24 @@
         </div>
 
         <!-- Control Buttons -->
-        <button id="start-miner" disabled>Start Miner</button>
-        <button id="stop-miner" disabled>Stop Miner</button>
+        <button id="start-miner" title="Start Miner">
+            <i class="fas fa-play"></i>
+        </button>
+        <button id="stop-miner" title="Stop Miner">
+            <i class="fas fa-stop"></i>
+        </button>
     </div>
 
     <!-- keep outside main app to keep visible on app load -->
-    <div id="install-check-modal" class="modal" style="display:block;">
+    <div id="install-check-modal" class="centered-modal" style="display:block;">
         <div class="modal-content">
             <h2>Installation Checks</h2>
             <div id="ore-cli-status" class="status-row">
-                <p id="ore-cli-status-text">Checking ore-cli installation...</p>
+                <p id="ore-cli-status-text">Checking Ore-CLI installation...</p>
                 <span id="ore-cli-checkmark" class="checkmark" style="display:none;">&#10004;</span>
             </div>
             <div id="unbuffer-status" class="status-row">
-                <p id="unbuffer-status-text">Checking unbuffer installation...</p>
+                <p id="unbuffer-status-text">Checking Unbuffer installation...</p>
                 <span id="unbuffer-checkmark" class="checkmark" style="display:none;">&#10004;</span>
             </div>
             <div id="rust-status" class="status-row">
@@ -216,8 +226,12 @@
                 <p id="homebrew-status-text">Checking Homebrew installation...</p>
                 <span id="homebrew-checkmark" class="checkmark" style="display:none;">&#10004;</span>
             </div>
+            <div id="solana-cli-status" class="status-row">
+                <p id="solana-cli-status-text">Checking Solana-CLI installation...</p>
+                <span id="solana-cli-checkmark" class="checkmark" style="display:none;">&#10004;</span>
+            </div>
             <pre id="modal-content"></pre>
-            <!-- New "Continue to the miner!" option -->
+          
             <div id="continue-option" style="display:none; margin-top: 20px; text-align: center;">
                 <p>Think this is a mistake?</p>
                 <button id="continue-anyway" class="profile-button">Continue to the miner!</button>

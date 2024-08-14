@@ -35,6 +35,9 @@ const domElements = {
     difficultyClose: document.querySelector('#difficulty-modal .close'),
     orePrice: document.getElementById('ore-price'), 
     oreBalance: document.getElementById('ore-balance'), 
+    solanaBalance: document.getElementById('solana-balance'),
+    solanaAddress: document.getElementById('solana-address'),
+    solanaAddressValue: document.getElementById('solana-address-value'),
 };
 
 module.exports = domElements;
