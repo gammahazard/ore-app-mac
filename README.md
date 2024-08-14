@@ -14,6 +14,7 @@ To get started with the Ore CPU Miner App, you'll need to have the following ins
 - **expect**
 - **Rust**
 - **Ore CLI**
+- **Solana CLI**
 
 ## Installation
 
