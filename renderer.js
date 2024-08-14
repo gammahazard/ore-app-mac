@@ -17,11 +17,98 @@ function initialize() {
   initializeMiningOperations();
   initializeProfileManagement();
   initializeDifficultyManagement(getCurrentProfile);
-  initializeModalManagement()
+  initializeModalManagement();
   checkInstallations();
   setupEventListeners();
   setupLogUpdates();
 
+  const continueButton = document.getElementById('continue-anyway');
+  continueButton.addEventListener('click', function() {
+      document.getElementById('install-check-modal').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      console.log('User chose to continue despite missing tools');
+  });
+}
+
+function checkInstallations() {
+  console.log('Checking installations...');
+  const modal = document.getElementById('install-check-modal');
+  const modalContent = document.getElementById('modal-content');
+  
+  if (!modal || !modalContent) {
+      console.error('Modal elements not found');
+      return;
+  }
+  
+  modalContent.textContent = 'Checking installations...';
+  modal.style.display = 'block';
+  console.log('Displaying modal...');
+  
+  ipcRenderer.invoke('run-installation-checks').then((results) => {
+      console.log('Installation check results:', results);
+      handleInstallationCheckResults(results);
+  }).catch((error) => {
+      console.error('Error running installation checks:', error);
+  });
+}
+
+function handleInstallationCheckResults(results) {
+  if (!results || typeof results !== 'object') {
+      console.error('Invalid installation check results:', results);
+      return;
+  }
+
+  console.log('Handling installation check results:', results);
+  const modal = document.getElementById('install-check-modal');
+  const modalContent = document.getElementById('modal-content');
+  const continueOption = document.getElementById('continue-option');
+  
+  if (!modal || !modalContent) {
+      console.error('Modal elements not found in handleInstallationCheckResults');
+      return;
+  }
+  
+  let allInstalled = true;
+  let resultHtml = '';
+
+  for (const [toolName, result] of Object.entries(results)) {
+      const statusText = document.getElementById(`${toolName}-status-text`);
+      const checkmark = document.getElementById(`${toolName}-checkmark`);
+      
+      if (!statusText || !checkmark) {
+          console.error(`Elements for ${toolName} not found`);
+          continue;
+      }
+
+      if (result.installed) {
+          statusText.textContent = `${toolName.toUpperCase()} FOUND!`;
+          checkmark.style.display = 'inline';
+          resultHtml += `<p>${toolName} found at: ${result.path}</p>`;
+          if (result.version) {
+              resultHtml += `<p>${toolName} version: ${result.version}</p>`;
+          }
+      } else {
+          statusText.textContent = `${toolName} not found`;
+          checkmark.style.display = 'none';
+          resultHtml += `<p>${toolName} error: ${result.error}</p>`;
+          allInstalled = false;
+      }
+  }
+  
+  modalContent.innerHTML = resultHtml;
+  
+  if (allInstalled) {
+      domElements.startMinerBtn.disabled = false;
+      console.log('All tools found, will hide modal in 2 seconds');
+      setTimeout(() => {
+          modal.style.display = 'none';
+          document.getElementById('app').style.display = 'block';
+          console.log('Modal hidden, app displayed');
+      }, 2000);
+  } else {
+      domElements.startMinerBtn.disabled = true;
+      continueOption.style.display = 'block';
+  }
 }
 
 
@@ -73,94 +160,6 @@ function cleanup() {
 // Call cleanup function before the window is unloaded
 window.addEventListener('beforeunload', cleanup);
 
-function checkInstallations() {
-  console.log('Checking installations...');
-  const modal = document.getElementById('install-check-modal');
-  const modalContent = document.getElementById('modal-content');
-  
-  if (!modal || !modalContent) {
-      console.error('Modal elements not found');
-      return;
-  }
-  
-  modalContent.textContent = 'Checking installations...';
-  modal.style.display = 'block';
-  console.log('Displaying modal...');
-  
-  ipcRenderer.invoke('run-installation-checks').then((results) => {
-      console.log('Installation check results:', results);
-      handleInstallationCheckResults(results);
-  }).catch((error) => {
-      console.error('Error running installation checks:', error);
-  });
-}
-
-function handleInstallationCheckResults(results) {
-  if (!results || typeof results !== 'object') {
-    console.error('Invalid installation check results:', results);
-    return;
-  }
-
-  console.log('Handling installation check results:', results);
-  const modal = document.getElementById('install-check-modal');
-  const modalContent = document.getElementById('modal-content');
-  
-  if (!modal || !modalContent) {
-    console.error('Modal elements not found in handleInstallationCheckResults');
-    return;
-  }
-  
-  let allInstalled = true;
-  let resultHtml = '';
-
-  for (const [toolName, result] of Object.entries(results)) {
-    const statusText = document.getElementById(`${toolName}-status-text`);
-    const checkmark = document.getElementById(`${toolName}-checkmark`);
-    
-    if (!statusText || !checkmark) {
-      console.error(`Elements for ${toolName} not found`);
-      continue;
-    }
-
-    if (result.installed) {
-      statusText.textContent = `${toolName.toUpperCase()} FOUND!`;
-      checkmark.style.display = 'inline';
-      resultHtml += `<p>${toolName} found at: ${result.path}</p>`;
-      if (result.version) {
-        resultHtml += `<p>${toolName} version: ${result.version}</p>`;
-      }
-    } else {
-      statusText.textContent = `${toolName} not found`;
-      checkmark.style.display = 'none';
-      resultHtml += `<p>${toolName} error: ${result.error}</p>`;
-      allInstalled = false;
-    }
-  }
-  
-  modalContent.innerHTML = resultHtml;
-  
-  if (allInstalled) {
-    domElements.startMinerBtn.disabled = false;
-    console.log('All tools found, will hide modal in 2 seconds');
-    setTimeout(() => {
-      modal.style.display = 'none';
-      document.getElementById('app').style.display = 'block';
-      console.log('Modal hidden, app displayed');
-    }, 2000);
-  } else {
-    domElements.startMinerBtn.disabled = true;
-    const closeBtn = modal.querySelector('.close');
-    if (closeBtn) {
-      closeBtn.onclick = () => {
-        modal.style.display = 'none';
-        document.getElementById('app').style.display = 'block';
-        console.log('Modal closed by user, app displayed');
-      };
-    } else {
-      console.error('Close button not found in modal');
-    }
-  }
-}
 
 function handleOutput(source, data) {
   const cleanedLog = cleanLog(data);

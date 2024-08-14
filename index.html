@@ -199,7 +199,6 @@
     <!-- keep outside main app to keep visible on app load -->
     <div id="install-check-modal" class="modal" style="display:block;">
         <div class="modal-content">
-         
             <h2>Installation Checks</h2>
             <div id="ore-cli-status" class="status-row">
                 <p id="ore-cli-status-text">Checking ore-cli installation...</p>
@@ -218,9 +217,13 @@
                 <span id="homebrew-checkmark" class="checkmark" style="display:none;">&#10004;</span>
             </div>
             <pre id="modal-content"></pre>
+            <!-- New "Continue to the miner!" option -->
+            <div id="continue-option" style="display:none; margin-top: 20px; text-align: center;">
+                <p>Think this is a mistake?</p>
+                <button id="continue-anyway" class="profile-button">Continue to the miner!</button>
+            </div>
         </div>
     </div>
-
 
     <script src="renderer.js"></script>
 </body>
