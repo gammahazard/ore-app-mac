@@ -1,6 +1,7 @@
 const os = require('os');
 const path = require('path');
 const fs = require('fs');
+const { dialog } = require('electron');
 const cleanLog = require('./cleanLog');
 const buildMinerArgs = require('./minerArgs');
 const stopMining = require('./stopMining');
@@ -41,12 +42,21 @@ function startMining(event, options, mainWindow, app, onRestart, setMiningState)
                 }, RESTART_DELAY);
             });
     }
-
+    function showAlert(message, type = 'error') {
+        dialog.showMessageBox(mainWindow, {
+            type: type,
+            title: type === 'error' ? 'Error' : 'Alert',
+            message: message,
+            buttons: ['OK']
+        });
+    }
     try {
         minerProcess = createMinerProcess(args);
     } catch (error) {
         console.error('Error creating miner process:', error);
-        event.reply('mining-error', `Failed to create miner process: ${error.message}`);
+        const errorMessage = `Failed to create miner process: ${error.message}`;
+        event.reply('mining-error', errorMessage);
+        showAlert(errorMessage);
         setMiningState(false);
         return null;
     }
@@ -61,12 +71,25 @@ function startMining(event, options, mainWindow, app, onRestart, setMiningState)
         if (isDestroyed) return;
 
         const { shouldRestart, shouldStop, reason } = handleMinerOutput(data, options, app, safeEmit, mainWindow);
+        
         if (shouldStop) {
-            stopMining(event, mainWindow, minerProcess).then(() => {
-                setMiningState(false);
-            });
+            if (reason === 'no-keypair') {
+                // Handle the no-keypair scenario
+                const message = 'Error: No Solana keypair found. Please generate a keypair before starting the miner.';
+                console.log(message);
+                showAlert(message);
+                safeEmit(mainWindow.webContents, 'mining-error', message);
+                stopMining(event, mainWindow, minerProcess).then(() => {
+                    setMiningState(false);
+                });
+            } else {
+                stopMining(event, mainWindow, minerProcess).then(() => {
+                    setMiningState(false);
+                });
+            }
             return;
         }
+        
         if (shouldRestart) {
             restartMiner(reason);
             return;
@@ -88,7 +111,9 @@ function startMining(event, options, mainWindow, app, onRestart, setMiningState)
 
     minerProcess.on('error', (error) => {
         if (!isDestroyed) {
-            event.reply('mining-error', `Failed to start miner: ${error.message}`);
+            const errorMessage = `Failed to start miner: ${error.message}`;
+            event.reply('mining-error', errorMessage);
+            showAlert(errorMessage);
             setMiningState(false);
         }
     });

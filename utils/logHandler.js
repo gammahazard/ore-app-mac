@@ -12,18 +12,30 @@ function handleMinerOutput(data, options, app, safeEmit, mainWindow) {
 
     // Check for panic
     if (cleanedOutput.includes('panicked at')) {
+        console.log('Full panic error:');
+        console.log(cleanedOutput);
+
+        // Check for "No keypair found" error
+        if (cleanedOutput.includes('No keypair found')) {
+            const message = 'Error: No Solana keypair found. Please generate a keypair before starting the miner.';
+            console.log(message);
+            safeEmit(mainWindow.webContents, 'miner-output', message);
+            return { shouldRestart: false, shouldStop: true, reason: 'no-keypair' };
+        }
+
         panicRestartCount++;
         const message = `Miner panicked. Restart attempt ${panicRestartCount}.`;
         console.log(message);
         safeEmit(mainWindow.webContents, 'miner-output', message);
-        
+        safeEmit(mainWindow.webContents, 'miner-output', cleanedOutput);
+
         if (panicRestartCount > 2) {
             const stopMessage = 'Miner panicked 3 times. Stopping miner.';
             console.log(stopMessage);
             safeEmit(mainWindow.webContents, 'miner-output', stopMessage);
             return { shouldRestart: false, shouldStop: true, reason: 'repeated-panic' };
         }
-        
+
         return { shouldRestart: true, reason: 'panic' };
     }
 
