@@ -1,6 +1,6 @@
 {
   "name": "ore-miner-electron-macos",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Electron app for Ore mining, mac only",
   "main": "main.js",
   "scripts": {
