@@ -4,12 +4,30 @@ const cleanLog = require('./cleanLog');
 
 let lastLogContent = '';
 let lastLogTimestamp = 0;
+let panicRestartCount = 0;
 
 function handleMinerOutput(data, options, app, safeEmit, mainWindow) {
     const cleanedOutput = cleanLog(data.toString().trim());
     const currentTime = Date.now();
 
-    // look for trx submission attempts and restart if it hits the specified cap 
+    // Check for panic
+    if (cleanedOutput.includes('panicked at')) {
+        panicRestartCount++;
+        const message = `Miner panicked. Restart attempt ${panicRestartCount}.`;
+        console.log(message);
+        safeEmit(mainWindow.webContents, 'miner-output', message);
+        
+        if (panicRestartCount > 2) {
+            const stopMessage = 'Miner panicked 3 times. Stopping miner.';
+            console.log(stopMessage);
+            safeEmit(mainWindow.webContents, 'miner-output', stopMessage);
+            return { shouldRestart: false, shouldStop: true, reason: 'repeated-panic' };
+        }
+        
+        return { shouldRestart: true, reason: 'panic' };
+    }
+
+    // Existing checks for TX submission and max retries
     const submissionMatch = cleanedOutput.match(/Submitting transaction... \(attempt (\d+)\)/);
     if (submissionMatch) {
         const attemptNumber = parseInt(submissionMatch[1], 10);
@@ -29,7 +47,8 @@ function handleMinerOutput(data, options, app, safeEmit, mainWindow) {
         safeEmit(mainWindow.webContents, 'miner-output', message);
         return { shouldRestart: true, reason: 'max-retries' };
     }
-//update new best hash if one is found
+
+    // Existing code for handling best hash
     if (cleanedOutput.includes('Best hash:')) {
         const match = cleanedOutput.match(/Best hash: (.+) \(difficulty (\d+)\)/);
         if (match) {
@@ -56,4 +75,8 @@ function logBestHash(bestHash, difficulty, options, app) {
     console.log(`Logged new hash for profile: ${options.name}`);
 }
 
-module.exports = { handleMinerOutput };
+function resetPanicCount() {
+    panicRestartCount = 0;
+}
+
+module.exports = { handleMinerOutput, resetPanicCount };

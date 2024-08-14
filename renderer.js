@@ -42,7 +42,6 @@ function setupEventListeners() {
   ipcRenderer.on('mining-stopping', handleMiningStopping);
   ipcRenderer.on('mining-stopped', handleMiningStopped);
   ipcRenderer.on('mining-error', handleMiningError);
-  ipcRenderer.on('miner-output', (event, data) => handleMinerOutput('miner-output', data));
   ipcRenderer.on('miner-output', (event, data) => handleOutput('miner-output', data));
   ipcRenderer.on('miner-error', handleMinerError);
   ipcRenderer.on('command-success', handleCommandSuccess);

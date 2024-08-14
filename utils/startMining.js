@@ -6,7 +6,7 @@ const buildMinerArgs = require('./minerArgs');
 const stopMining = require('./stopMining');
 const checkMaxTX = require('./maxTXcheck');
 const createMinerProcess = require('./minerProcess');
-const { handleMinerOutput } = require('./logHandler');
+const { handleMinerOutput, resetPanicCount } = require('./logHandler');
 
 const RESTART_DELAY = 5000; // 5 seconds delay before restarting
 
@@ -57,7 +57,11 @@ function startMining(event, options, mainWindow, app, onRestart) {
     minerProcess.stdout.on('data', (data) => {
         if (isDestroyed) return;
 
-        const { shouldRestart, reason } = handleMinerOutput(data, options, app, safeEmit, mainWindow);
+        const { shouldRestart, shouldStop, reason } = handleMinerOutput(data, options, app, safeEmit, mainWindow);
+        if (shouldStop) {
+            stopMining(event, mainWindow, minerProcess);
+            return;
+        }
         if (shouldRestart) {
             restartMiner(reason);
             return;
@@ -88,6 +92,7 @@ function startMining(event, options, mainWindow, app, onRestart) {
             const message = `Miner process exited with code ${code}`;
             console.log(message);
             safeEmit(mainWindow.webContents, 'miner-stopped', message);
+            resetPanicCount(); // Reset panic count when miner closes normally
         }
     });
 
