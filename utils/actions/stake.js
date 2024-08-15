@@ -3,12 +3,16 @@ const os = require('os');
 const path = require('path');
 const cleanLog = require('../cleanLog');
 const oreBalance = require('../oreBalance');
-const findUnbufferPath = require('../install-checks/BufferExists'); 
+const findUnbufferPath = require('../install-checks/BufferExists');
 
 function executeStakeCommand({ amount, keypairPath, priorityFee, rpcUrl }, event, mainWindow) {
     const [_, stakeAmount] = amount.split(' ');
 
-    const unbufferPath = findUnbufferPath(); 
+    const unbufferResult = findUnbufferPath();
+    if (!unbufferResult.installed) {
+        throw new Error('unbuffer not found. Please install it and try again.');
+    }
+
     const oreCliPath = path.join(os.homedir(), '.cargo', 'bin', 'ore');
 
     let command = `${oreCliPath} stake`;
@@ -19,7 +23,7 @@ function executeStakeCommand({ amount, keypairPath, priorityFee, rpcUrl }, event
 
     console.log('Executing stake command:', command);
 
-    const stakeProcess = spawn(unbufferPath, ['-p', command], {
+    const stakeProcess = spawn(unbufferResult.path, ['-p', command], {
         shell: true,
         env: { ...process.env, TERM: 'xterm-256color' }
     });
@@ -40,6 +44,11 @@ function executeStakeCommand({ amount, keypairPath, priorityFee, rpcUrl }, event
     stakeProcess.stdout.on('data', (data) => {
         const output = data.toString();
         filterAndSendLog(output);
+
+        if (output.includes('Are you sure you want to continue? [Y/n]')) {
+            console.log('Confirmation prompt detected, sending Y');
+            stakeProcess.stdin.write('Y\n');  // Send 'Y' to continue
+        }
 
         if (output.includes('OK') && !successSent) {
             console.log('OK message detected in stdout');

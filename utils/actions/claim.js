@@ -3,12 +3,16 @@ const os = require('os');
 const path = require('path');
 const cleanLog = require('../cleanLog');
 const oreBalance = require('../oreBalance');
-const findUnbufferPath = require('../install-checks/BufferExists'); // Import the BufferExists function
+const findUnbufferPath = require('../install-checks/BufferExists');
 
 function executeClaimCommand({ amount, keypairPath, priorityFee, rpcUrl }, event, mainWindow) {
     const [_, claimAmount] = amount.split(' ');
 
-    const unbufferPath = findUnbufferPath();
+    const unbufferResult = findUnbufferPath();
+    if (!unbufferResult.installed) {
+        throw new Error('unbuffer not found. Please install it and try again.');
+    }
+
     const oreCliPath = path.join(os.homedir(), '.cargo', 'bin', 'ore');
 
     let command = `${oreCliPath} claim`;
@@ -19,7 +23,7 @@ function executeClaimCommand({ amount, keypairPath, priorityFee, rpcUrl }, event
 
     console.log('Executing claim command:', command);
 
-    const claimProcess = spawn(unbufferPath, ['-p', command], {
+    const claimProcess = spawn(unbufferResult.path, ['-p', command], {
         shell: true,
         env: { ...process.env, TERM: 'xterm-256color' }
     });

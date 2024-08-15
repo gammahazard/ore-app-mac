@@ -1,14 +1,18 @@
 const { spawn } = require('child_process');
 const os = require('os');
 const path = require('path');
-const cleanLog = require('../cleanLog'); 
+const cleanLog = require('../cleanLog');
 const oreBalance = require('../oreBalance');
-const findUnbufferPath = require('../install-checks/BufferExists'); 
+const findUnbufferPath = require('../install-checks/BufferExists');
 
 function executeTransferCommand({ amount, keypairPath, priorityFee, rpcUrl }, event, mainWindow) {
     const [_, transferAmount, recipient] = amount.split(' ');
 
-    const unbufferPath = findUnbufferPath(); 
+    const unbufferResult = findUnbufferPath();
+    if (!unbufferResult.installed) {
+        throw new Error('unbuffer not found. Please install it and try again.');
+    }
+
     const oreCliPath = path.join(os.homedir(), '.cargo', 'bin', 'ore');
 
     let command = `${oreCliPath} transfer`;
@@ -20,7 +24,7 @@ function executeTransferCommand({ amount, keypairPath, priorityFee, rpcUrl }, ev
 
     console.log('Executing transfer command:', command);
 
-    const transferProcess = spawn(unbufferPath, ['-p', command], {
+    const transferProcess = spawn(unbufferResult.path, ['-p', command], {
         shell: true,
         env: { ...process.env, TERM: 'xterm-256color' }
     });
@@ -29,9 +33,8 @@ function executeTransferCommand({ amount, keypairPath, priorityFee, rpcUrl }, ev
     let successSent = false;
 
     function filterAndSendLog(message, type = 'output') {
-        const cleanedMessage = cleanLog(message); // Clean the log message
+        const cleanedMessage = cleanLog(message);
 
-        // Send the cleaned message only if it's not a duplicate of the last one
         if (cleanedMessage && cleanedMessage !== lastCleanedMessage) {
             lastCleanedMessage = cleanedMessage;
             console.log(`Filtered ${type}: ${cleanedMessage}`);
