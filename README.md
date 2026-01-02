@@ -1,42 +1,42 @@
-# 🛡️ Ore CPU Miner: Desktop Controller (macOS)
+# Autonomous Process Supervisor (macOS / Electron)
 
 ![Platform](https://img.shields.io/badge/Platform-macOS-lightgrey?style=for-the-badge&logo=apple)
 ![Tech](https://img.shields.io/badge/Stack-Node.js_/_Electron-black?style=for-the-badge&logo=electron)
-![Security](https://img.shields.io/badge/Logic-Process_Orchestration-blueviolet?style=for-the-badge)
+![Security](https://img.shields.io/badge/Logic-Self_Healing_Systems-blueviolet?style=for-the-badge)
 
-A high-performance desktop wrapper for the **Ore CLI miner**. This application bridges the gap between raw command-line tools and a professional user experience, implementing advanced process orchestration to ensure 24/7 mining uptime.
+A high-availability systems controller for the **Ore CLI miner**. This application acts as a **Process Supervisor**, bridging the gap between raw command-line tools and enterprise-grade reliability. It implements advanced **Child Process Orchestration** to ensure 24/7 uptime without user intervention.
 
 ---
 
 ## 🏗️ Architectural Overview
 
-Unlike standard wrappers, this application treats the **Ore CLI** as a managed child process. It utilizes `expect` and `unbuffer` to maintain a persistent, non-blocking stream of miner telemetry, allowing for real-time analysis of difficulty, hash rates, and submission status.
+Unlike standard UI wrappers, this application treats the **Ore CLI** as a managed subservient process. It utilizes `expect` and `unbuffer` to maintain a persistent, non-blocking stream of telemetry, allowing for real-time analysis of thread health, difficulty metrics, and submission status.
 
-### Resilience Features:
-* **Panic Recovery:** Monitors stdout for thread panics and automatically restarts the miner instance to prevent downtime.
-* **Dynamic Fee Management:** Implements logic for static/dynamic priority fees and custom RPC routing.
-* **State Persistence:** Multi-profile management (up to 5 profiles) with independent difficulty tracking and keypair paths.
+### Resilience & Self-Healing:
+* **Automated Panic Recovery:** The supervisor monitors `stdout` for thread panics or Rust-level errors. Upon detection, it automatically kills and respawns the worker process (Self-Healing), preventing stalled states.
+* **Dynamic Resource Management:** Implements logic for static/dynamic priority fees based on network congestion.
+* **State Persistence:** Multi-profile management (up to 5 profiles) with isolated difficulty tracking and non-custodial keypair mapping.
 
 ---
 
 ## 🚀 Key Features
 
-* **Biometric-Ready Security:** Designed with a focus on secure keypair path handling.
-* **Smart UI Lifecycle:** Initial dependency validation for **Homebrew**, **Rust**, and **Solana CLI** before the miner environment initializes.
-* **Real-time Telemetry:** Live visualization of difficulty averages and top hashes per profile.
-* **Transaction Monitoring:** Automated submission tracking with configurable restart thresholds for transaction saturation.
+* **Environment Integrity Check:** Performs a startup audit to validate dependencies (**Homebrew**, **Rust**, **Solana CLI**) before initialization.
+* **Non-Blocking I/O:** Decouples the UI thread from the mining logic to ensure the interface remains responsive during high-load hashing.
+* **Real-time Telemetry:** Visualizes difficulty averages and hash rates via IPC (Inter-Process Communication) bridges.
+* **Transaction Saturation Logic:** Automated submission tracking with configurable restart thresholds to prevent API rate limiting.
 
 ---
 
 ## 🛠️ Environment Setup
 
 ### Prerequisites
-The application performs a system audit on startup, but the following are required for core functionality:
+The application acts as a system auditor on startup, requiring:
 
-1. **Homebrew:** System package management.
-2. **Expect / Unbuffer:** For process stream handling (`brew install expect`).
-3. **Rust Toolchain:** To compile/run the underlying Ore-CLI.
-4. **Solana CLI:** For on-chain balance and address verification.
+1.  **Homebrew:** System package management.
+2.  **Expect / Unbuffer:** For process stream handling (`brew install expect`).
+3.  **Rust Toolchain:** To compile/run the underlying binaries.
+4.  **Solana CLI:** For on-chain interactions.
 
 ---
 
@@ -44,16 +44,16 @@ The application performs a system audit on startup, but the following are requir
 
 | Deployment Stage | System Interface |
 | :--- | :--- |
-| **Miner Control** | ![Main Interface](https://i.imgur.com/qWD0Nn8.png) |
-| **Telemetry** | ![Difficulty Info](https://i.imgur.com/LrMcoEq.png) |
-| **Audit Logic** | ![Dependency Check](https://i.imgur.com/HIYhH1Q.png) |
+| **Supervisor Dashboard** | ![Main Interface](https://i.imgur.com/qWD0Nn8.png) |
+| **Telemetry Analysis** | ![Difficulty Info](https://i.imgur.com/LrMcoEq.png) |
+| **Startup Audit** | ![Dependency Check](https://i.imgur.com/HIYhH1Q.png) |
 
 ---
 
 ## 📄 License & Acknowledgements
 
 * **License:** MIT.
-* **Credits:** Built on top of the excellent work by the **Ore CLI** developers and the Rust community.
+* **Core Logic:** Orchestrates the **Ore CLI** (Rust) via Node.js child_process.
 
 ---
 *Developed by Vanguard Secure Solutions.*
